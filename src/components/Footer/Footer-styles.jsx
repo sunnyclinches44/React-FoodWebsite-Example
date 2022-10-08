@@ -9,6 +9,6 @@ export const StyledFooter = styled.div(() => {
     font-weight: var(--fw-400);
     font-size: var(--fs-footer-content);
     font-family: var(--ff-body);
-    padding: 2rem;
+    padding: 4rem;
   `;
 });

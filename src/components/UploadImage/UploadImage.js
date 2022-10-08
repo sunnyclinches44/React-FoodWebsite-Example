@@ -2,41 +2,38 @@ import { useState } from "react";
 
 import {
   StyledButton,
-  StyledHeaderOne
+  StyledHeaderOne,
+  StyledHeaderTwo,
 } from "../GenericStyledComponents/GenericStyledComponents";
 
 import { StyledUploadImageContainer } from "./UploadImage-styles";
 import ProgressBar from "../ProgressBar/ProgressBar";
 
 const UploadImage = (props) => {
-  const [imageUpload, SetImageUpload] = useState(null);
+  const types = ["image/png", "image/jpeg", "image/jpg"];
+
+  const [imageSelected, SetImageSelected] = useState(null);
   const [uploadMessage, SetUploadMessage] = useState(null);
+  const [isUploadInProgress, SetIsUploadInProgress] = useState(false);
 
   const updateImageUploaded = (event) => {
-    SetImageUpload(event.target.files[0]);
+    SetImageSelected(event.target.files[0]);
   };
 
-  const uploadImageUploaded = () => {
-    console.log(imageUpload.type);
-    if (imageUpload == null) {
+  const uploadImageSelected = () => {
+    console.log(imageSelected.type);
+    if (imageSelected == null) {
       console.log("Please upload an image");
       return;
     }
-    if (
-      imageUpload.type.includes("image/png") ||
-      imageUpload.type.includes("image/jpeg") ||
-      imageUpload.type.includes("image/jpg")
-    ) {
-      SetUploadMessage({
-        status: "success",
-        message: "Upload the file to firebase storage"
-      });
-      console.log("Upload the file to firebase storage");
+    if (types.includes(imageSelected.type)) {
+      // Validate the type of image file
+      SetIsUploadInProgress(true);
       return;
     } else {
       SetUploadMessage({
         status: "error",
-        message: "Uploaded file format is not supported"
+        message: "Uploaded file format is not supported",
       });
       console.log("Uploaded file format is not supported");
     }
@@ -53,22 +50,43 @@ const UploadImage = (props) => {
       {uploadMessage != null && (
         <div
           className="upload-message"
-          uploadMessageStatus={uploadMessage.status}
+          uploadmessagestatus={uploadMessage.status}
         >
           {uploadMessage.message}
         </div>
       )}
       <StyledHeaderOne>Upload</StyledHeaderOne>
-      <label for="UploadFileInput">
-        <img
-          src="/icons8-upload-to-cloud-50.png"
-          className="styled-upload-img"
-          alt="Upload Icon"
-        />
-      </label>
-      <input type="file" id="UploadFileInput" onChange={updateImageUploaded} />
-      <ProgressBar completed="90" />
-      <StyledButton onClick={uploadImageUploaded}> Submit </StyledButton>
+      {imageSelected == null && (
+        <div>
+          <label htmlFor="UploadFileInput">
+            <img
+              src="/icons8-upload-to-cloud-50.png"
+              className="styled-upload-img"
+              alt="Upload Icon"
+            />
+          </label>
+          <input
+            type="file"
+            id="UploadFileInput"
+            onChange={updateImageUploaded}
+          />
+        </div>
+      )}
+      {imageSelected != null && (
+        <StyledHeaderTwo>Selected Image - {imageSelected.name}</StyledHeaderTwo>
+      )}
+      {isUploadInProgress && (
+        <div>
+          <ProgressBar
+            file={imageSelected}
+            setFile={SetImageSelected}
+            setUploadMessage={SetUploadMessage}
+            setIsUploadInProgress={SetIsUploadInProgress}
+          />
+        </div>
+      )}
+
+      <StyledButton onClick={uploadImageSelected}> Submit </StyledButton>
     </StyledUploadImageContainer>
   );
 };

@@ -17,7 +17,7 @@ export const StyledUploadImageContainer = styled.div(() => {
     }
     .upload-message {
       background-color: ${(props) =>
-        props.uploadMessageStatus == "error"
+        props.uploadmessagestatus == "error"
           ? "hsla(4, 90%, 58%, 0.8)"
           : "hsla(156, 100%, 50%, 0.8)"};
       padding: 0.5em;

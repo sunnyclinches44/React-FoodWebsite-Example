@@ -74,7 +74,7 @@ export const StyledSecondaryContainer = styled.div(() => {
     .card_link {
       text-decoration: none;
       color: black;
-      width: 100%;
+      max-width: 100%;
     }
     /* if the screen width less then 800px 05 50em
     then change to grid auto flow to row */
@@ -85,7 +85,7 @@ export const StyledSecondaryContainer = styled.div(() => {
         place-items: center;
       }
       .card_link {
-        width: 50%;
+        max-width: 50%;
       }
     }
   `;
