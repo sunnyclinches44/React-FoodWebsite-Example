@@ -8,22 +8,17 @@ import {
 const ProgressBar = ({
   file,
   setFile,
-  setUploadMessage,
   setIsUploadInProgress,
+  category
 }) => {
-  const { progress, url } = useStorage(file);
+  const { progress, url } = useStorage(file, category);
 
   useEffect(() => {
     if (url) {
-      setUploadMessage({
-        status: "success",
-        message: `${file.name} uploaded to firebase`,
-      });
       setFile(null);
-  
       setIsUploadInProgress(false);
     }
-  }, [url, setFile, setUploadMessage, setIsUploadInProgress]);
+  }, [url, setFile,  setIsUploadInProgress]);
 
   return (
     <StyledProgressBarContainer>

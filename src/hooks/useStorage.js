@@ -1,18 +1,24 @@
 import { useState, useEffect } from "react";
 
-import { projectStorage, projectFireStore, timeStamp } from "../firebase/config";
+import {
+  projectStorage,
+  projectFireStore,
+  timeStamp,
+} from "../firebase/config";
 
-const useStorage = (file) => {
+const useStorage = (file, category) => {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
   const [url, setUrl] = useState(null);
 
   useEffect(() => {
-    //storage reference
-    const storageRef = projectStorage.ref(file.name);
-
     //firestore reference
     const collectionRef = projectFireStore.collection("images");
+    //firestore document reference
+    const imageDocRef = collectionRef.doc();
+
+    //storage reference with the document id
+    const storageRef = projectStorage.ref(imageDocRef.id);
 
     /** Put function on method has three parameters - snapshot upload percentage, error, 
         and aysnc function to get the URL */
@@ -28,13 +34,13 @@ const useStorage = (file) => {
       async () => {
         const url = await storageRef.getDownloadURL();
         const createdAt = timeStamp();
-        collectionRef.add({url, createdAt })
+        imageDocRef.set({ url, createdAt, category });
         setUrl(url);
       }
     );
   }, [file]);
 
-  return {progress, error, url};
-}
+  return { progress, error, url };
+};
 
 export default useStorage;

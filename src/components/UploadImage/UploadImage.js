@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   StyledButton,
@@ -6,55 +6,94 @@ import {
   StyledHeaderTwo,
 } from "../GenericStyledComponents/GenericStyledComponents";
 
-import { StyledUploadImageContainer } from "./UploadImage-styles";
+import {
+  StyledUploadImageContainer,
+  StyledUploadMessage,
+} from "./UploadImage-styles";
 import ProgressBar from "../ProgressBar/ProgressBar";
+
+import FormInput from "../FormInput/FormInput";
 
 const UploadImage = (props) => {
   const types = ["image/png", "image/jpeg", "image/jpg"];
 
   const [imageSelected, SetImageSelected] = useState(null);
-  const [uploadMessage, SetUploadMessage] = useState(null);
   const [isUploadInProgress, SetIsUploadInProgress] = useState(false);
+
+  const [title, SetTitle] = useState("");
+  const [description, SetDescription] = useState("");
+  const [validationMessages, SetValidationMessages] = useState([]);
 
   const updateImageUploaded = (event) => {
     SetImageSelected(event.target.files[0]);
   };
 
-  const uploadImageSelected = () => {
-    console.log(imageSelected.type);
-    if (imageSelected == null) {
-      console.log("Please upload an image");
-      return;
+  useEffect(() => {
+    if (Object.keys(validationMessages).length > 0) {
+      console.log(
+        "Inside useEffect function of UploadForm: ",
+        validationMessages
+      );
     }
-    if (types.includes(imageSelected.type)) {
-      // Validate the type of image file
-      SetIsUploadInProgress(true);
-      return;
-    } else {
-      SetUploadMessage({
-        status: "error",
-        message: "Uploaded file format is not supported",
+  }, [validationMessages]);
+
+  const SubmitForm = (e) => {
+    e.preventDefault();
+    SetValidationMessages(ValidateForm);
+    // Set is upload in progress to true
+    SetIsUploadInProgress(true);
+  };
+
+  const ValidateForm = () => {
+    // Validate the fields
+    const errors = [];
+    if (title === "") {
+      errors.push({ field: "title", message: "Title is mandatory" });
+    }
+    if (description === "") {
+      errors.push({
+        field: "description",
+        message: "Description is mandatory",
       });
-      console.log("Uploaded file format is not supported");
     }
+    if (imageSelected == null) {
+      errors.push({
+        field: "selectedImage",
+        message: "Select an Image to upload",
+        status: "error",
+      });
+    } else if (!types.includes(imageSelected.type)) {
+      errors.push({
+        field: "selectedImage",
+        message: "Selected file format is not valid",
+        status: "error",
+      });
+    }
+
+    return errors;
   };
 
   return (
-    <StyledUploadImageContainer>
+    <StyledUploadImageContainer onSubmit={SubmitForm}>
       <img
         src="/cancel-icon.svg"
         className="styled-cancel-img"
         alt="Cancel Icon"
         onClick={props.hideUploadScreen}
       />
-      {uploadMessage != null && (
-        <div
-          className="upload-message"
-          uploadmessagestatus={uploadMessage.status}
-        >
-          {uploadMessage.message}
-        </div>
-      )}
+      {validationMessages.map((info) => {
+        if (info.field === "selectedImage") {
+          console.log("Inside Map Function: ", info);
+          return (
+            <StyledUploadMessage
+              key="{info.field}"
+              uploadmessagestatus={info.status}
+            >
+              {info.message}
+            </StyledUploadMessage>
+          );
+        }
+      })}
       <StyledHeaderOne>Upload</StyledHeaderOne>
       {imageSelected == null && (
         <div>
@@ -80,13 +119,39 @@ const UploadImage = (props) => {
           <ProgressBar
             file={imageSelected}
             setFile={SetImageSelected}
-            setUploadMessage={SetUploadMessage}
             setIsUploadInProgress={SetIsUploadInProgress}
+            category={props.category}
           />
         </div>
       )}
 
-      <StyledButton onClick={uploadImageSelected}> Submit </StyledButton>
+      <FormInput
+        id="category"
+        name="category"
+        placeHolderInfo="Category"
+        inputValue={props.category}
+        isReadOnly={true}
+      />
+      <FormInput
+        id="title"
+        name="title"
+        onChange={(e) => SetTitle(e.target.value)}
+        placeHolderInfo="Title"
+        errorMessages={validationMessages.filter(
+          (info) => info.field === "title"
+        )}
+      />
+      <FormInput
+        id="description"
+        name="description"
+        onChange={(e) => SetDescription(e.target.value)}
+        placeHolderInfo="Description"
+        errorMessages={validationMessages.filter(
+          (info) => info.field === "description"
+        )}
+      />
+
+      <StyledButton type="submit"> Submit </StyledButton>
     </StyledUploadImageContainer>
   );
 };
